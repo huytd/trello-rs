@@ -24,7 +24,6 @@ impl<'a> UI<'a> {
 
     pub fn render(&self) {
         self.r.clear();
-        self.r.print(1, 1, rustbox::RB_REVERSE, Color::Default, Color::Black, &format!("DEBUG: WIDTH: {} HEIGHT: {}", self.r.width(), self.r.height()));
         if let Some(vm) = self.vm {
             vm.render(&self.r);
         }
