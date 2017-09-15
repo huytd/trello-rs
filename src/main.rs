@@ -26,6 +26,10 @@ fn input_mode(key: rustbox::Key) {
     match key {
         Key::Esc => { unsafe { VM.normal_mode(); } },
         Key::Backspace => { unsafe { VM.remove_char(); } },
+        Key::Enter => { unsafe {
+            VM.add_task();
+            VM.normal_mode();
+        } },
         Key::Char(c) => {
             unsafe {
                 VM.input_char(c);

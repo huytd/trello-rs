@@ -67,6 +67,18 @@ impl ViewModel {
         }
     }
 
+    pub fn add_task(&mut self) {
+        if let Some(ref mut model) = self.model {
+            if model.input.len() > 0 {
+                let task = Task{
+                    status: TaskStatus::Backlog,
+                    title: format!("{}", model.input)
+                };
+                model.tasks.push(task);
+            }
+        }
+    }
+
     pub fn render(&self, g: &RustBox) {
         let screen_height = g.height();
         let screen_width = g.width();
@@ -77,6 +89,19 @@ impl ViewModel {
             g.print(1, 1, RB_REVERSE | RB_BOLD, Color::White, Color::Black, " ON GOING  ");
             g.print(section_width, 1, RB_REVERSE | RB_BOLD, Color::White, Color::Black, " TO DO     ");
             g.print(1, section_height, RB_REVERSE | RB_BOLD, Color::White, Color::Black, " DONE      ");
+
+            let backlog_task_line = 2;
+            let mut backlog_task_count = 0;
+            for task in &model.tasks {
+                match task.status {
+                    TaskStatus::Backlog => {
+                        backlog_task_count += 1;
+                        g.print(section_width + 1, backlog_task_line + backlog_task_count, RB_NORMAL, Color::White, Color::Black, &format!("{}. {}", backlog_task_count, task.title));
+                    },
+                    TaskStatus::Ongoing => {},
+                    TaskStatus::Done => {}
+                }
+            }
 
             match model.mode {
                 KeyMode::Input => {
