@@ -1,7 +1,19 @@
 use rustbox::{Color, RustBox, RB_BOLD};
 
+enum TaskStatus {
+    Backlog,
+    Ongoing,
+    Blocked,
+    Done
+}
+
+struct Task {
+    status: TaskStatus,
+    title: String
+}
+
 pub struct Model { 
-    count: i32
+    tasks: Vec<Task>
 }
 
 pub struct ViewModel {
@@ -11,25 +23,12 @@ pub struct ViewModel {
 impl ViewModel {
     pub fn init(&mut self) {
         self.model = Some(Model {
-            count: 0
+            tasks: vec![]
         });
-    }
-
-    pub fn count_up(&mut self) {
-        if let Some(ref mut model) = self.model {
-            model.count += 1;
-        }
-    }
-
-    pub fn count_down(&mut self) {
-        if let Some(ref mut model) = self.model {
-            model.count -= 1;
-        }
     }
 
     pub fn render(&self, g: &RustBox) {
         if let Some(ref model) = self.model {
-            g.print(1, 10, RB_BOLD, Color::White, Color::Black, &format!("VALUE: {}", model.count));
         }
     }
 }

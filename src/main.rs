@@ -24,8 +24,8 @@ fn main() {
             Ok(rustbox::Event::KeyEvent(key)) => {
                 match key {
                     Key::Char('q') => { break; },
-                    Key::Char('k') => { unsafe { VM.count_up(); } },
-                    Key::Char('j') => { unsafe { VM.count_down(); } },
+                    Key::Char('k') => { unsafe { } },
+                    Key::Char('j') => { unsafe { } },
                     _ => {}
                 }
             },
