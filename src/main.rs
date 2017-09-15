@@ -17,11 +17,22 @@ fn normal_mode(key: rustbox::Key) {
         Key::Char('q') => { unsafe { QUIT = true; } },
         Key::Char('k') => { unsafe { } },
         Key::Char('j') => { unsafe { } },
+        Key::Char('i') => { unsafe { VM.input_mode(); } },
         _ => {}
     }
 }
 
 fn input_mode(key: rustbox::Key) {
+    match key {
+        Key::Esc => { unsafe { VM.normal_mode(); } },
+        Key::Backspace => { unsafe { VM.remove_char(); } },
+        Key::Char(c) => {
+            unsafe {
+                VM.input_char(c);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn main() {
@@ -44,12 +55,8 @@ fn main() {
             Ok(rustbox::Event::KeyEvent(key)) => {
                 unsafe {
                     match VM.current_mode() {
-                        &KeyMode::Normal => {
-                            normal_mode(key);
-                        },
-                        &KeyMode::Input => {
-                            input_mode(key);
-                        }
+                        &KeyMode::Normal => normal_mode(key),
+                        &KeyMode::Input => input_mode(key)
                     }
                 }
             },
