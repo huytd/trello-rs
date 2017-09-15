@@ -1,0 +1,8 @@
+[package]
+name = "trello-rs"
+version = "0.1.0"
+authors = ["Huy Tran <huydt@careskore.com>"]
+
+[dependencies]
+rustbox = "*"
+serde_json = "*"
