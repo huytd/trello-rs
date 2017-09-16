@@ -1,6 +1,6 @@
 use std::default::Default;
 use rustbox;
-use rustbox::{Color, RustBox};
+use rustbox::{Color, RustBox, OutputMode};
 
 use models::ViewModel;
 
@@ -10,10 +10,11 @@ pub struct UI<'a> {
 }
 impl<'a> UI<'a> {
     pub fn init() -> UI<'a> {
-        let renderer = match RustBox::init(Default::default()) {
+        let mut renderer = match RustBox::init(Default::default()) {
             Result::Ok(r) => r,
             Result::Err(e) => panic!("{}", e),
         };
+        renderer.set_output_mode(OutputMode::EightBit);
         let ui = UI{ r: renderer, vm: None };
         return ui;
     }

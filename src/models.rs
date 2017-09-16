@@ -71,7 +71,7 @@ impl ViewModel {
         if let Some(ref mut model) = self.model {
             if model.input.len() > 0 {
                 let task = Task{
-                    status: TaskStatus::Backlog,
+                    status: TaskStatus::Ongoing,
                     title: format!("{}", model.input)
                 };
                 model.tasks.push(task);
@@ -84,22 +84,29 @@ impl ViewModel {
         let screen_width = g.width();
         let section_height = screen_height / 2;
         let section_width = screen_width / 2;
+        let mut backlog_task_count = 0;
+        let mut ongoing_task_count = 0;
+        let mut done_task_count = 0;
 
         if let Some(ref model) = self.model {
-            g.print(1, 1, RB_REVERSE | RB_BOLD, Color::White, Color::Black, " ON GOING  ");
-            g.print(section_width, 1, RB_REVERSE | RB_BOLD, Color::White, Color::Black, " TO DO     ");
-            g.print(1, section_height, RB_REVERSE | RB_BOLD, Color::White, Color::Black, " DONE      ");
+            g.print(1, 1, RB_REVERSE | RB_BOLD, Color::Byte(7), Color::Black, " ON GOING  ");
+            g.print(section_width, 1, RB_REVERSE | RB_BOLD, Color::Byte(15), Color::Black, " TO DO     ");
+            g.print(1, section_height, RB_REVERSE | RB_BOLD, Color::Byte(8), Color::Black, " DONE      ");
 
-            let backlog_task_line = 2;
-            let mut backlog_task_count = 0;
             for task in &model.tasks {
                 match task.status {
                     TaskStatus::Backlog => {
                         backlog_task_count += 1;
-                        g.print(section_width + 1, backlog_task_line + backlog_task_count, RB_NORMAL, Color::White, Color::Black, &format!("{}. {}", backlog_task_count, task.title));
+                        g.print(section_width + 1, backlog_task_count + 2, RB_NORMAL, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
                     },
-                    TaskStatus::Ongoing => {},
-                    TaskStatus::Done => {}
+                    TaskStatus::Ongoing => {
+                        ongoing_task_count += 1;
+                        g.print(2, ongoing_task_count + 2, RB_NORMAL, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
+                    },
+                    TaskStatus::Done => {
+                        done_task_count += 1;
+                        g.print(2, section_height + done_task_count + 1, RB_NORMAL, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
+                    }
                 }
             }
 
