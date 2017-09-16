@@ -43,6 +43,7 @@ fn main() {
     let mut u = UI::init();
     unsafe {
         VM.init();
+        VM.load_data();
         u.bind(&VM);
     }
     
