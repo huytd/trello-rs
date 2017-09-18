@@ -1,9 +1,10 @@
-use rustbox::{Color, RustBox, RB_BOLD, RB_REVERSE, RB_NORMAL};
+use rustbox::{Color, RustBox, RB_BOLD, RB_REVERSE, RB_NORMAL, RB_UNDERLINE};
 use std::path::Path;
 use std::fs::File;
 use std::env;
 use std::io::{BufRead, BufReader};
 
+#[derive(PartialEq)]
 enum TaskStatus {
     Backlog,
     Ongoing,
@@ -23,7 +24,9 @@ pub enum KeyMode {
 pub struct Model { 
     tasks: Vec<Task>,
     input: String,
-    mode: KeyMode
+    mode: KeyMode,
+    selected_zone: TaskStatus,
+    selected_index: usize
 }
 
 pub struct ViewModel {
@@ -35,7 +38,9 @@ impl ViewModel {
         self.model = Some(Model {
             tasks: vec![],
             input: format!(""),
-            mode: KeyMode::Normal
+            mode: KeyMode::Normal,
+            selected_zone: TaskStatus::Backlog,
+            selected_index: 1
         });
     }
 
@@ -140,15 +145,27 @@ impl ViewModel {
                 match task.status {
                     TaskStatus::Backlog => {
                         backlog_task_count += 1;
-                        g.print(section_width + 1, backlog_task_count + 2, RB_NORMAL, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
+                        if (model.selected_zone == task.status) && (model.selected_index == backlog_task_count) {
+                            g.print(section_width + 1, backlog_task_count + 2, RB_UNDERLINE, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
+                        } else {
+                            g.print(section_width + 1, backlog_task_count + 2, RB_NORMAL, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
+                        }
                     },
                     TaskStatus::Ongoing => {
                         ongoing_task_count += 1;
-                        g.print(2, ongoing_task_count + 2, RB_NORMAL, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
+                        if (model.selected_zone == task.status) && (model.selected_index == ongoing_task_count) {
+                            g.print(2, ongoing_task_count + 2, RB_UNDERLINE, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
+                        } else {
+                            g.print(2, ongoing_task_count + 2, RB_NORMAL, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
+                        }
                     },
                     TaskStatus::Done => {
                         done_task_count += 1;
-                        g.print(2, section_height + done_task_count + 1, RB_NORMAL, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
+                        if (model.selected_zone == task.status) && (model.selected_index == done_task_count) {
+                            g.print(2, section_height + done_task_count + 1, RB_UNDERLINE, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
+                        } else {
+                            g.print(2, section_height + done_task_count + 1, RB_NORMAL, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
+                        }
                     }
                 }
             }
