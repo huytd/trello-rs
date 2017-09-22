@@ -15,9 +15,11 @@ static mut QUIT: bool = false;
 fn normal_mode(key: rustbox::Key) {
     match key {
         Key::Char('q') => { unsafe { QUIT = true; } },
-        Key::Char('k') => { unsafe { } },
-        Key::Char('j') => { unsafe { } },
-        Key::Char('i') => { unsafe { VM.input_mode(); } },
+        Key::Char('k') => { unsafe { VM.move_selection_up(); } },
+        Key::Char('j') => { unsafe { VM.move_selection_down(); } },
+        Key::Char('h') => { unsafe { VM.move_selection_left(); } },
+        Key::Char('l') => { unsafe { VM.move_selection_right(); } },
+        Key::Char('a') => { unsafe { VM.input_mode(); } },
         _ => {}
     }
 }

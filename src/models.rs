@@ -26,7 +26,10 @@ pub struct Model {
     input: String,
     mode: KeyMode,
     selected_zone: TaskStatus,
-    selected_index: usize
+    selected_index: usize,
+    total_backlog: usize,
+    total_ongoing: usize,
+    total_done: usize
 }
 
 pub struct ViewModel {
@@ -40,7 +43,10 @@ impl ViewModel {
             input: format!(""),
             mode: KeyMode::Normal,
             selected_zone: TaskStatus::Backlog,
-            selected_index: 1
+            selected_index: 1,
+            total_backlog: 0,
+            total_ongoing: 0,
+            total_done: 0
         });
     }
 
@@ -62,9 +68,18 @@ impl ViewModel {
                                     };
 
                                     match prefix {
-                                        "TODO" => task.status = TaskStatus::Backlog,
-                                        "ONGO" => task.status = TaskStatus::Ongoing,
-                                        "DONE" => task.status = TaskStatus::Done,
+                                        "TODO" => {
+                                            task.status = TaskStatus::Backlog;
+                                            model.total_backlog += 1;
+                                        },
+                                        "ONGO" => {
+                                            task.status = TaskStatus::Ongoing; 
+                                            model.total_ongoing += 1;
+                                        },
+                                        "DONE" => {
+                                            task.status = TaskStatus::Done;
+                                            model.total_done += 1;
+                                        },
                                         _ => {}
                                     }
 
@@ -125,6 +140,61 @@ impl ViewModel {
         }
     }
 
+    pub fn move_selection_up(&mut self) {
+        if let Some(ref mut model) = self.model {
+            if model.selected_index > 1 {
+                model.selected_index -= 1;
+            }
+        }
+    }
+
+    pub fn move_selection_down(&mut self) {
+        if let Some(ref mut model) = self.model {
+            let max_index = match model.selected_zone {
+                TaskStatus::Backlog => model.total_backlog,
+                TaskStatus::Ongoing => model.total_ongoing,
+                TaskStatus::Done => model.total_done
+            };
+            if model.selected_index < max_index {
+                model.selected_index += 1;
+            }
+        }
+    }
+
+    pub fn move_selection_left(&mut self) {
+        if let Some(ref mut model) = self.model {
+            model.selected_index = 1;
+            match model.selected_zone {
+                TaskStatus::Backlog => {
+                    model.selected_zone = TaskStatus::Ongoing;
+                },
+                TaskStatus::Ongoing => {
+                    model.selected_zone = TaskStatus::Done;
+                },
+                TaskStatus::Done => {
+                    model.selected_zone = TaskStatus::Ongoing;
+                }
+            }
+        }
+    }
+
+    pub fn move_selection_right(&mut self) {
+        if let Some(ref mut model) = self.model {
+            model.selected_index = 1;
+            match model.selected_zone {
+                TaskStatus::Backlog => {
+                    model.selected_zone = TaskStatus::Done;
+                },
+                TaskStatus::Ongoing => {
+                    model.selected_zone = TaskStatus::Backlog;
+                },
+                TaskStatus::Done => {
+                    model.selected_zone = TaskStatus::Backlog;
+                }
+            }
+        }
+    }
+
     pub fn render(&self, g: &RustBox) {
         let screen_height = g.height();
         let screen_width = g.width();
@@ -146,7 +216,7 @@ impl ViewModel {
                     TaskStatus::Backlog => {
                         backlog_task_count += 1;
                         if (model.selected_zone == task.status) && (model.selected_index == backlog_task_count) {
-                            g.print(section_width + 1, backlog_task_count + 2, RB_UNDERLINE, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
+                            g.print(section_width + 1, backlog_task_count + 2, RB_UNDERLINE | RB_BOLD, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
                         } else {
                             g.print(section_width + 1, backlog_task_count + 2, RB_NORMAL, Color::Byte(7), Color::Black, &format!("{}. {}", backlog_task_count, task.title));
                         }
@@ -154,7 +224,7 @@ impl ViewModel {
                     TaskStatus::Ongoing => {
                         ongoing_task_count += 1;
                         if (model.selected_zone == task.status) && (model.selected_index == ongoing_task_count) {
-                            g.print(2, ongoing_task_count + 2, RB_UNDERLINE, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
+                            g.print(2, ongoing_task_count + 2, RB_UNDERLINE | RB_BOLD, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
                         } else {
                             g.print(2, ongoing_task_count + 2, RB_NORMAL, Color::Byte(15), Color::Black, &format!("{}. {}", ongoing_task_count, task.title));
                         }
@@ -162,7 +232,7 @@ impl ViewModel {
                     TaskStatus::Done => {
                         done_task_count += 1;
                         if (model.selected_zone == task.status) && (model.selected_index == done_task_count) {
-                            g.print(2, section_height + done_task_count + 1, RB_UNDERLINE, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
+                            g.print(2, section_height + done_task_count + 1, RB_UNDERLINE | RB_BOLD, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
                         } else {
                             g.print(2, section_height + done_task_count + 1, RB_NORMAL, Color::Byte(8), Color::Black, &format!("{}. {}", done_task_count, task.title));
                         }
