@@ -136,6 +136,7 @@ impl ViewModel {
                     title: format!("{}", model.input)
                 };
                 model.tasks.push(task);
+                model.total_backlog += 1;
             }
         }
     }
